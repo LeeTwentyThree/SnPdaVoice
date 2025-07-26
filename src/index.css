@@ -1,0 +1,79 @@
+ body {
+  background-color: #1b242a;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+} 
+
+*, .Modal * {
+  font-family: "Verdana", sans-serif;
+  color: aliceblue;
+}
+
+#page-content * {
+  margin-top: 15x;
+  margin-left: 2%;
+  padding: 5px;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+footer {
+    background-color:#2d3b44;
+    margin-top: auto;
+    padding: 3px;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button, textarea, #modal-panel {
+    background-color: #2f3a42;
+}
+
+#modal-overlay {
+  background-color: #1b242a;
+  opacity: 50%;
+}
+
+#generate-button {
+  font-size: larger;
+  width: 150px;
+  height: 40px;
+  text-align: center;
+}
+
+.Modal {
+    position: fixed;
+    transform-origin: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(36, 43, 50);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align:middle;
+    padding: 20px;
+}
+
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(13, 13, 22, 0.28);
+}
+
+.button-spacing { margin-top: 25px; }
