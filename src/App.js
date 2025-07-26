@@ -45,7 +45,7 @@ function GenerateMainSection() {
   const handleButtonClick = (setMessage) => {
     (async function () {
       try {
-        const response = await fetch(`/generate`);
+        const response = await fetch(`/api/generate`);
         const full = await response.text();
         setMessage("Full response: " + full);
         openModal();
