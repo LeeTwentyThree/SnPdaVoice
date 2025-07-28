@@ -13,6 +13,8 @@ HOST = 'host.docker.internal'
 PORT = 8765
 RETRY_DELAY = 4
 
+CHARACTER_LIMIT = 2000
+
 app = FastAPI()
 
 message_queue = queue.Queue()
@@ -54,11 +56,15 @@ def socket_worker():
 
 @app.post("/api/generate")
 async def generate(input: GenerationRequest):
+    message_length = len(input.input.message)
+    if (message_length > CHARACTER_LIMIT):
+        warning_message = str(message_length) + " inputted, " + str(CHARACTER_LIMIT) + " max"
+        return { "status": "too_many_characters", "job_id": "-1", "message": warning_message }
     unique_id = str(uuid.uuid4())
     print("Queuing request with ID " + unique_id)
     message_queue.put((input, unique_id))
     job_statuses[unique_id] = { "status": "queued", "filename": None }
-    return { "status": "queued", "job_id": unique_id }
+    return { "status": "queued", "job_id": unique_id, "message": "Queued!" }
 
 
 @app.post("/api/notify-file-ready")

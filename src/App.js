@@ -73,6 +73,11 @@ function GenerateMainSection() {
       });
 
       const json = await response.json();
+      if (json.status === "too_many_characters") {
+        setMessage("Too many characters! " + json.message);
+        openModal();
+        return;
+      }
       const jobId = json.job_id;
 
       // Polling loop
