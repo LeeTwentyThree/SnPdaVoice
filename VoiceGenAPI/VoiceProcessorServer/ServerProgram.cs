@@ -80,6 +80,7 @@ public static class ServerProgram
             }
             catch (Exception e)
             {
+                Console.WriteLine("Exception: " + e);
                 await writer.WriteLineAsync("Exception thrown!");
                 continue;
             }

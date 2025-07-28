@@ -1,10 +1,114 @@
 from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+import socket
+import threading
+import queue
+import time
+import json
+import uuid
+from .generation_request import GenerationRequest
+from .file_notification import FileNotification
+
+HOST = 'host.docker.internal'
+PORT = 8765
+RETRY_DELAY = 4
 
 app = FastAPI()
 
-@app.get("/api/generate")
-async def generate():
-    return {"message": "HELLO WORLD!"}
+message_queue = queue.Queue()
 
+job_statuses = {} # key: job_id, value: { "status": "queued"/"complete"/"error", "filename": str }
+
+def socket_worker():
+    while True:
+        input, job_id = message_queue.get()
+        job_statuses[job_id] = { "status": "queued", "filename": None }
+
+        while True:
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    print(f"Connecting to {HOST}:{PORT}...")
+                    s.connect((HOST, PORT))
+                    print("Connected.")
+
+                    # Include job_id in the payload
+                    message_dict = input.dict()
+                    message_dict["job_id"] = job_id
+                    jsonMessage = json.dumps(message_dict)
+
+                    print(f"Sending: {jsonMessage}")
+                    s.sendall((jsonMessage + "\n").encode())
+                    data = s.recv(1024)
+                    print(f"Received from server: {data.decode()}")
+                    break
+
+            except (ConnectionRefusedError, socket.timeout) as e:
+                print(f"{e}. Retrying in {RETRY_DELAY}s...")
+                time.sleep(RETRY_DELAY)
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                time.sleep(RETRY_DELAY)
+
+        message_queue.task_done()
+
+
+@app.post("/api/generate")
+async def generate(input: GenerationRequest):
+    unique_id = str(uuid.uuid4())
+    print("Queuing request with ID " + unique_id)
+    message_queue.put((input, unique_id))
+    job_statuses[unique_id] = { "status": "queued", "filename": None }
+    return { "status": "queued", "job_id": unique_id }
+
+
+@app.post("/api/notify-file-ready")
+async def notify_file_ready(data: FileNotification):
+    print("Raw data received:", data)
+    if data.job_id not in job_statuses:
+        print(f"Unknown job ID: {data.job_id}")
+        raise HTTPException(status_code=404, detail="Unknown job ID")
+
+    if data.success:
+        print(f"File ready: {data.job_id} -> {data.filename}")
+        job_statuses[data.job_id] = {
+            "status": "ready",
+            "filename": data.filename
+        }
+        return { "status": "received" }
+    else:
+        print("Received a failed generation")
+        job_statuses[data.job_id] = {
+            "status": "error",
+            "filename": None
+        }
+        return { "status": "error" }
+
+
+@app.get("/api/status/{job_id}")
+async def check_status(job_id: str):
+    job = job_statuses.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job ID not found")
+
+    status = job["status"]
+    
+    if status == "ready":
+        return {
+            "status": "ready",
+            "url": f"/files/{job['filename']}"
+        }
+    elif status == "error":
+        return {
+            "status": "error"
+        }
+    else:
+        return {
+            "status": "queued"
+        }
+
+# START SERVER
+
+app.mount("/files", StaticFiles(directory="output", html=False), name="files")
 app.mount("/", StaticFiles(directory="build", html=True), name="static")
+
+threading.Thread(target=socket_worker, daemon=True).start()

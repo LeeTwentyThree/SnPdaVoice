@@ -1,9 +1,25 @@
-﻿using System.Net;
+﻿using System.Text.Json.Serialization;
 
 namespace VoiceProcessor.Data;
 
-public class GenerationResult(string filePath, HttpStatusCode statusCode)
+public class GenerationResult
 {
-    public string FilePath { get; } = filePath;
-    public HttpStatusCode StatusCode { get; } = statusCode;
+    public GenerationResult()
+    {
+        
+    }
+
+    public GenerationResult(string jobId, string fileName, bool success)
+    {
+        JobId = jobId;
+        FileName = fileName;
+        Success = success;
+    }
+
+    [JsonPropertyName("job_id")]
+    public string JobId { get; set; }
+    [JsonPropertyName("filename")]
+    public string FileName { get; set; }
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
 }

@@ -51,7 +51,9 @@ public static class Program
                 UseSsml = false
             };
 
-            var request = new VoiceLineRequest(input);
+            var id = Guid.NewGuid().ToString();
+
+            var request = new VoiceLineRequest(input, id);
 
             await writer.WriteLineAsync(JsonSerializer.Serialize(request));
             var response = await reader.ReadLineAsync();

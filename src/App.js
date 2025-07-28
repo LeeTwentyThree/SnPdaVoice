@@ -32,6 +32,9 @@ function GenerateMainSection() {
   const [modalErrorMessage, setErrorMessage] = React.useState("An error occurred");
   const [modalIsOpen, setIsOpen] = React.useState(false);
 
+  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [isPolling, setIsPolling] = useState(false);
+
   function openModal() {
     setIsOpen(true);
   }
@@ -43,25 +46,69 @@ function GenerateMainSection() {
   const [textInput, setText] = useState("Detecting multiple leviathan class lifeforms in the region. Are you certain whatever you're doing is worth it?");
 
   const handleButtonClick = (setMessage) => {
-    (async function () {
-      try {
-        const response = await fetch(`/api/generate`);
-        const full = await response.text();
-        setMessage("Full response: " + full);
-        openModal();
-        // const data = await response.json();
-        // alert("Result:\n" + data.message);
-      }
-      catch (error) {
-        if (error.response) {
-          setMessage("Error accessing backend: " + error.response.status);
+  (async function () {
+    if (textInput.trim() === "") {
+      setMessage("Please enter text!");
+      openModal();
+      return;
+    }
+    try {
+      setDownloadUrl(null);  // clear previous download
+      setIsPolling(true);
+
+      const input = {
+        message: textInput,
+        use_ssml: false,
+        voice_id: "pda"
+      };
+
+      const request = { input };
+
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(request)
+      });
+
+      const json = await response.json();
+      const jobId = json.job_id;
+
+      // Polling loop
+      const pollInterval = 3000;
+      let attempts = 0;
+      const maxAttempts = 20;
+
+      const pollStatus = async () => {
+        const statusResponse = await fetch(`/api/status/${jobId}`);
+        const statusJson = await statusResponse.json();
+
+        if (statusJson.status === "ready") {
+          setDownloadUrl(statusJson.url);
+          setIsPolling(false);
+        } else if (statusJson.status === "error") {
+          setMessage("An internal server error occurred.");
+          setIsPolling(false);
+          openModal();
         }
-        else {
-          setMessage("An unknown error occurred");
+        else if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(pollStatus, pollInterval);
+        } else {
+          setMessage("File not ready after waiting.");
+          setIsPolling(false);
+          openModal();
         }
-        openModal();
-      }
-    })();
+      };
+
+      pollStatus();
+
+    } catch (error) {
+      setMessage("An unknown error occurred.");
+      openModal();
+    }
+  })();
   };
 
   return (
@@ -101,6 +148,22 @@ function GenerateMainSection() {
           <button onClick={closeModal}>Close</button>
         </div>
       </ReactModal>
+      {isPolling && <p>Waiting for file to be ready...</p>}
+        {downloadUrl && (
+          <div style={{
+            marginLeft: '0px'
+          }}>
+            <h2>Your file is ready!</h2>
+            <audio controls>
+            <source src={downloadUrl} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
+          <br/>
+          <a href={downloadUrl} download target="_blank" rel="noopener noreferrer">
+            Download Voice Line
+          </a>
+          </div>
+        )}
     </section>
   )
 }
@@ -109,7 +172,7 @@ function SiteFooter() {
   return (
     <footer>
       <p>This site is not officially affiliated with Krafton or Unknown Worlds.</p>
-      <p>The tool does not use artificial intelligence to generate output files.</p>
+      <p>Uploaded text and generated files are stored temporarily. Generated files are deleted within seven days. The tool does not use artificial intelligence to generate output files.</p>
     </footer>
   )
 }

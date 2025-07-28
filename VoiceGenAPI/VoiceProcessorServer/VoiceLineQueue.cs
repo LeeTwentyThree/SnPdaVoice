@@ -1,12 +1,14 @@
 ﻿using System.Net;
 using System.Runtime.Versioning;
 using VoiceProcessor;
+using VoiceProcessor.Data;
 
 namespace VoiceProcessorServer;
 
 [SupportedOSPlatform("windows")]
 public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
 {
+    private readonly CompletedFileNotifier _notifier = new(new HttpClient(), 8005, "api/notify-file-ready");
     private readonly Queue<VoiceLineRequest> _requests = new();
 
     public void EnqueueVoiceLineRequest(VoiceLineRequest request)
@@ -27,35 +29,45 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
 
         if (string.IsNullOrEmpty(request.Input.VoiceId))
         {
-            ContactRequester(request, $"Invalid ID: '{request.Input.VoiceId}'", false);
+            await ContactRequester(request, null, $"Invalid ID: '{request.Input.VoiceId}'", false);
             return;
         }
         
         if (!voices.TryGetValue(request.Input.VoiceId, out var generator))
         {
-            ContactRequester(request, $"Failed to find voice by ID '{request.Input.VoiceId}'", false);
+            await ContactRequester(request, null, $"Failed to find voice by ID '{request.Input.VoiceId}'", false);
             return;
         }
 
         try
         {
-            var result = await generator.GenerateVoiceLine(request.Input);
-            if (result.StatusCode != HttpStatusCode.OK)
+            var result = await generator.GenerateVoiceLine(request.Input, request.JobId);
+            if (result.Success)
             {
-                ContactRequester(request, "An internal exception occurred", false);
+                await ContactRequester(request, result, "Success!", true);
                 return;
             }
-            ContactRequester(request, "Success", true);
+            
+            await ContactRequester(request, null, "An internal exception occurred", false);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            ContactRequester(request, "An internal exception occurred", false);
+            await ContactRequester(request, null, "An internal exception occurred", false);
         }
     }
 
-    private static void ContactRequester(VoiceLineRequest request, string responseMessage, bool success)
+    private async Task ContactRequester(VoiceLineRequest request, GenerationResult? result, string responseMessage, bool success)
     {
-        Console.WriteLine($"{{PLACEHOLDER}}: {request}, message: {responseMessage}, success: {success}");
+        Console.WriteLine($"[Contacting requester] request: '{request}', message: '{responseMessage}', success: '{success}'");
+
+        if (success && result != null)
+        {
+            await _notifier.NotifyFileReadyAsync(result);
+        }
+        else
+        {
+            await _notifier.NotifyFileReadyAsync(new GenerationResult(request.JobId, "ERROR", false));
+        }
     }
 }

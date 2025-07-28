@@ -18,8 +18,8 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     private const int TimeOutInMilliseconds = 15000;
     private const int CheckCompletionIntervalMs = 200;
     
-    private static GenerationResult ErrorResult { get; } =
-        new("http://invalid.invalid/", HttpStatusCode.InternalServerError);
+    private static GenerationResult GetErrorResult(string id) =>
+        new("http://invalid.invalid/", id, false);
     
     private SpeechSynthesizer? GetSynthesizer()
     {
@@ -39,14 +39,14 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         return null;
     }
 
-    public async Task<GenerationResult> GenerateVoiceLine(GenerationInput input)
+    public async Task<GenerationResult> GenerateVoiceLine(GenerationInput input, string id)
     {
         using var synthesizer = GetSynthesizer();
 
         if (synthesizer == null)
         {
             Console.WriteLine("Synthesizer is not initialized! Check that the correct voice is installed.");
-            return ErrorResult;
+            return GetErrorResult(id);
         }
 
         try
@@ -54,7 +54,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
             var rawSpeech = await GenerateUnfilteredTextToSpeech(synthesizer, input);
             if (rawSpeech.Success == false)
             {
-                return ErrorResult;
+                return GetErrorResult(id);
             }
 
             var outputPath = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
@@ -62,15 +62,15 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
             AddFiltersAndGenerateNewFile(rawSpeech.Path, outputPath, generatorSettings.FilterSettings);
             
             File.Delete(rawSpeech.Path);
+
+            var outputFileName = Path.GetFileName(outputPath);
             
-            // HANDLE UPLOADING IT LATER AND INSTEAD RETURN A URL
-            
-            return new GenerationResult(outputPath, HttpStatusCode.OK);
+            return new GenerationResult(id, outputFileName, true);
         }
         catch (Exception e)
         {
             Console.WriteLine("Exception while generating voice line: " + e);
-            return ErrorResult;
+            return GetErrorResult(id);
         }
     }
 
