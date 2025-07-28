@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceProcessor", "VoiceProcessor\VoiceProcessor.csproj", "{76BC1982-67AD-4FE8-BECA-9A1BD3556C4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceProcessorTerminal", "VoiceProcessorTerminal\VoiceProcessorTerminal.csproj", "{66DA48F3-CD10-4A24-9355-3B70363CA8DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceProcessorServer", "VoiceProcessorServer\VoiceProcessorServer.csproj", "{0B8BE959-E830-4CED-9D69-B34ED714EC55}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76BC1982-67AD-4FE8-BECA-9A1BD3556C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76BC1982-67AD-4FE8-BECA-9A1BD3556C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76BC1982-67AD-4FE8-BECA-9A1BD3556C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76BC1982-67AD-4FE8-BECA-9A1BD3556C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66DA48F3-CD10-4A24-9355-3B70363CA8DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66DA48F3-CD10-4A24-9355-3B70363CA8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66DA48F3-CD10-4A24-9355-3B70363CA8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66DA48F3-CD10-4A24-9355-3B70363CA8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B8BE959-E830-4CED-9D69-B34ED714EC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B8BE959-E830-4CED-9D69-B34ED714EC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B8BE959-E830-4CED-9D69-B34ED714EC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B8BE959-E830-4CED-9D69-B34ED714EC55}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

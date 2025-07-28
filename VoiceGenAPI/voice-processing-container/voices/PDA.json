@@ -1,0 +1,32 @@
+{
+   "voice_id":"pda",
+   "voice_name":"IVONA 2 Amy OEM",
+   "volume":100,
+   "rate":0,
+   "filter_settings":{
+      "pitch_shift": -0.96,
+      "filters":[
+         {
+            "type":"time_padding",
+            "ms_before": 100,
+            "ms_after": 600
+         },
+         {
+            "type":"flanger",
+            "depth":1.5,
+            "rate":0.15,
+            "delay":6.0,
+            "feedback":0.05,
+            "mix":0.2,
+            "waveform":"sine"
+         },
+         {
+            "type":"flangus",
+            "feedback":0.25,
+            "max_delay_ms":3.2,
+            "lfo_frequency":0.15,
+            "wet_mix": 0.45
+         }
+      ]
+   }
+}
