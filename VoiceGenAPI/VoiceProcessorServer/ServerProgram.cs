@@ -12,17 +12,18 @@ namespace VoiceProcessorServer;
 public static class ServerProgram
 {
     private static VoiceLineQueue MainQueue { get; set; }
-
-    private const int QueueProcessingDelay = 300;
-
+    
     public const int Port = 8765;
     private static TcpListener? _listener;
     private static StreamReader? _reader;
     private static StreamWriter? _writer;
     
     public static bool IsReady { get; private set; }
-    
 
+    private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(200);
+    private static TimeSpan FileLifetime { get; } = TimeSpan.FromDays(1);
+    private static TimeSpan FileDeletionAttemptsInterval { get; } = TimeSpan.FromHours(1);
+    
     public static async Task Main(string[] args)
     {
         _listener = new TcpListener(IPAddress.Loopback, Port);
@@ -40,6 +41,7 @@ public static class ServerProgram
 
         MainQueue = new VoiceLineQueue(voices);
         Task.Run(ProcessQueue);
+        Task.Run(ClearUnusedFiles);
         
         Console.WriteLine($"Voice systems initialized. {voices.Count} voices found.");
         Console.WriteLine("Starting server...");
@@ -97,6 +99,15 @@ public static class ServerProgram
         {
             await MainQueue.ProcessNextQueueElement();
             await Task.Delay(QueueProcessingDelay);
+        }
+    }
+
+    private static async Task ClearUnusedFiles()
+    {
+        while (true)
+        {
+            CleanUpUtils.ClearAllOldFiles(FileLifetime);
+            await Task.Delay(FileDeletionAttemptsInterval);
         }
     }
 
