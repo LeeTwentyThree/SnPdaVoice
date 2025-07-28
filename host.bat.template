@@ -1,0 +1,2 @@
+docker build -t pda-voice-generator .
+docker run -it -p 8005:3000 -v [ABSOLUTE-PATH]\SnPdaVoice\VoiceGenAPI\voice-processing-container\temp:/app/output pda-voice-generator:latest
