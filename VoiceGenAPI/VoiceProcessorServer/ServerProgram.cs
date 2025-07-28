@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
-using VoiceProcessor;
 using VoiceProcessor.Utilities;
 
 namespace VoiceProcessorServer;
@@ -23,6 +22,8 @@ public static class ServerProgram
     private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(200);
     private static TimeSpan FileLifetime { get; } = TimeSpan.FromDays(1);
     private static TimeSpan FileDeletionAttemptsInterval { get; } = TimeSpan.FromHours(1);
+    
+    private static readonly Telemetry Telemetry = new();
     
     public static async Task Main(string[] args)
     {
@@ -47,6 +48,8 @@ public static class ServerProgram
         Console.WriteLine("Starting server...");
 
         IsReady = true;
+        
+        Telemetry.LogServerStart();
         
         while (true)
         {
@@ -83,11 +86,13 @@ public static class ServerProgram
             catch (Exception e)
             {
                 Console.WriteLine("Exception: " + e);
+                Telemetry.LogError($"Exception thrown while processing received line '{line}': " + e);
                 await writer.WriteLineAsync("Exception thrown!");
                 continue;
             }
 
             GetBestQueueForInput(request).EnqueueVoiceLineRequest(request);
+            Telemetry.LogReceivedRequest(request);
             await writer.WriteLineAsync("Enqueued request successfully!");
         }
     }

@@ -9,6 +9,7 @@ public static class WorkingFolderUtils
     private const string RootFolderName = "voice-processing-container";
     private const string TempFolderName = "temp";
     private const string VoicesFolder = "voices";
+    private const string TelemetryFileName = "telemetry.db";
 
     private static string? _workingFolderPath;
 
@@ -54,5 +55,10 @@ public static class WorkingFolderUtils
         }
 
         return path;
+    }
+
+    public static string GetTelemetryFilePath()
+    {
+        return Path.Combine(GetWorkingFolderRoot(), "telemetry.db");
     }
 }

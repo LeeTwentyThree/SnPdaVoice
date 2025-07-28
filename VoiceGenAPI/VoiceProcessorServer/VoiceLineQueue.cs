@@ -11,6 +11,8 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
     private readonly CompletedFileNotifier _notifier = new(new HttpClient(), 8005, "api/notify-file-ready");
     private readonly Queue<VoiceLineRequest> _requests = new();
 
+    private static readonly Telemetry Telemetry = new Telemetry();
+
     public void EnqueueVoiceLineRequest(VoiceLineRequest request)
     {
         _requests.Enqueue(request);
@@ -26,6 +28,7 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
         var request = _requests.Dequeue();
         
         Console.WriteLine("Handling request: " + request);
+        Telemetry.LogProcessedRequest(request);
 
         if (string.IsNullOrEmpty(request.Input.VoiceId))
         {
@@ -60,6 +63,7 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
     private async Task ContactRequester(VoiceLineRequest request, GenerationResult? result, string responseMessage, bool success)
     {
         Console.WriteLine($"[Contacting requester] request: '{request}', message: '{responseMessage}', success: '{success}'");
+        Telemetry.LogRequestCompletionStatus(request, success);
 
         if (success && result != null)
         {

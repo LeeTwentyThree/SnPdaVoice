@@ -14,7 +14,13 @@ public class GenerationInput
 
     public override string ToString()
     {
-        var messageString = Message == null ? "null" : Message.Truncate(50);
-        return $"[message: {messageString}, id: {VoiceId}, useSsml: {UseSsml}]]";
+        return ConvertToString(50);
+    }
+
+    public string ConvertToString(int maxCharactersFromInputtedMessage)
+    {
+        var messageString = Message == null ? "null" : Message.Truncate(maxCharactersFromInputtedMessage);
+        var escapedString = messageString.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        return "{ \"message\": \"" + escapedString + "\", \"use_ssml\": true, \"voice_id\": \"" + VoiceId + "\" }";
     }
 }
