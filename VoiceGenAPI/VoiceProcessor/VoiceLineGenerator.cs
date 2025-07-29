@@ -16,12 +16,12 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
 
     private const int TimeOutInMilliseconds = 15000;
     private const int CheckCompletionIntervalMs = 200;
-    
+
     private static GenerationResult GetErrorResult(string id) =>
         new("http://invalid.invalid/", id, false);
 
     private const int ExportSampleRate = 44100;
-    
+
     private SpeechSynthesizer? GetSynthesizer()
     {
         try
@@ -59,13 +59,13 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
             }
 
             var outputPath = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
-            
+
             AddFiltersAndGenerateNewFile(rawSpeech.Path, outputPath, generatorSettings.FilterSettings);
-            
+
             File.Delete(rawSpeech.Path);
 
             var outputFileName = Path.GetFileName(outputPath);
-            
+
             return new GenerationResult(id, outputFileName, true);
         }
         catch (Exception e)
@@ -75,12 +75,14 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         }
     }
 
-    private async Task<RawSpeechGeneration> GenerateUnfilteredTextToSpeech(SpeechSynthesizer synthesizer, GenerationInput input)
+    private async Task<RawSpeechGeneration> GenerateUnfilteredTextToSpeech(SpeechSynthesizer synthesizer,
+        GenerationInput input)
     {
         var path = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
         synthesizer.SetOutputToWaveFile(path);
-        
-        var prompt = new Prompt(input.Message, input.UseSsml ? SynthesisTextFormat.Ssml : SynthesisTextFormat.Text);
+
+        var prompt = new Prompt(input.UseSsml ? FixSsml(input.Message) : input.Message,
+            input.UseSsml ? SynthesisTextFormat.Ssml : SynthesisTextFormat.Text);
         bool success = await SpeakAsyncWithCompletion(synthesizer, prompt);
 
         if (!success)
@@ -88,7 +90,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
             Console.WriteLine("Synthesis timed out.");
             return new RawSpeechGeneration("ERROR", false);
         }
-        
+
         synthesizer.SetOutputToNull();
 
         Console.WriteLine("Saving raw voice line to file at path: " + path);
@@ -106,12 +108,12 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         {
             source = source.ChangeSampleRate(ExportSampleRate);
         }
-        
+
         if (Math.Abs(filterSettings.PitchShift) > 0.001f)
         {
             source = PitchShift(source, filterSettings.PitchShift);
         }
-        
+
         foreach (var filter in filterSettings.Filters)
         {
             source = filter.Apply(source);
@@ -141,8 +143,9 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
 
         return new PitchShiftSource(buffer, source.WaveFormat, semitones);
     }
-    
-    private async Task<bool> SpeakAsyncWithCompletion(SpeechSynthesizer synthesizer, Prompt prompt, int timeoutMs = 15000)
+
+    private async Task<bool> SpeakAsyncWithCompletion(SpeechSynthesizer synthesizer, Prompt prompt,
+        int timeoutMs = 15000)
     {
         var tcs = new TaskCompletionSource<bool>();
 
@@ -170,6 +173,12 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     private static string GetUniqueFileName()
     {
         return Guid.NewGuid().ToString();
+    }
+
+    private static string FixSsml(string original)
+    {
+        return original.Replace("<speak>",
+            "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-GB\">");
     }
 
     private class RawSpeechGeneration(string path, bool success)
