@@ -21,6 +21,6 @@ public class GenerationInput
     {
         var messageString = Message == null ? "null" : Message.Truncate(maxCharactersFromInputtedMessage);
         var escapedString = messageString.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        return "{ \"message\": \"" + escapedString + "\", \"use_ssml\": true, \"voice_id\": \"" + VoiceId + "\" }";
+        return "{ \"message\": \"" + escapedString + "\", \"use_ssml\": " +  UseSsml + ", \"voice_id\": \"" + VoiceId + "\" }";
     }
 }

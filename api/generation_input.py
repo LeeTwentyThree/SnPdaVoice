@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictBool
 
 class GenerationInput(BaseModel):
     message: str
-    use_ssml: bool = False
+    use_ssml: StrictBool
     voice_id: str
