@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Runtime.Versioning;
-using System.Speech.AudioFormat;
 using System.Speech.Synthesis;
 using CSCore;
 using CSCore.Codecs.WAV;
@@ -20,16 +19,6 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     
     private static GenerationResult GetErrorResult(string id) =>
         new("http://invalid.invalid/", id, false);
-    
-    private static readonly SpeechAudioFormatInfo Format = new(
-        EncodingFormat.Pcm,
-        ExportSampleRate,
-        16,
-        1,
-        88200,
-        2,
-        null
-    );
 
     private const int ExportSampleRate = 44100;
     
@@ -89,7 +78,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     private async Task<RawSpeechGeneration> GenerateUnfilteredTextToSpeech(SpeechSynthesizer synthesizer, GenerationInput input)
     {
         var path = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
-        synthesizer.SetOutputToWaveFile(path, Format);
+        synthesizer.SetOutputToWaveFile(path);
         synthesizer.SpeakAsync(new Prompt(input.Message,
             input.UseSsml ? SynthesisTextFormat.Ssml : SynthesisTextFormat.Text));
 
@@ -137,7 +126,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
             source = source.ChangeSampleRate(ExportSampleRate);
         }
         
-        if (Math.Abs(filterSettings.PitchShift) > 0.00001f)
+        if (Math.Abs(filterSettings.PitchShift) > 0.001f)
         {
             source = PitchShift(source, filterSettings.PitchShift);
         }
