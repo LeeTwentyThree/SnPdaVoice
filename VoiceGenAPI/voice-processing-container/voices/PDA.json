@@ -13,29 +13,29 @@
       },
       {
         "type": "flanger",
-        "depth": 1.0,
+        "depth": 0.7,
         "lfo_frequency": 0.3,
         "base_delay_ms": 3,
         "spread": 0.2,
         "cross_mix": 0.3,
         "dry_gain_db": -0.1,
         "wet_gain_db": -2.0,
-        "feedback": 0.4
+        "feedback": 0.33
       },
       {
         "type": "flanger",
-        "depth": 0.3,
+        "depth": 0.5,
         "lfo_frequency": 0.2,
-        "base_delay_ms": 6.5,
+        "base_delay_ms": 5,
         "spread": 0.2,
         "cross_mix": 0.3,
         "dry_gain_db": 0.4,
         "wet_gain_db": -1.0,
-        "feedback": 0.4
+        "feedback": 0.33
       },
       {
          "type": "flangus",
-         "order": 3,
+         "order": 2,
          "depth": 0.2,
          "speed": 0.7,
          "delay": 1.5,
@@ -70,7 +70,7 @@
           },
           {
             "frequency_hz": 1500,
-            "gain_db": 8,
+            "gain_db": 6,
             "q": 1
           },
           {
@@ -88,10 +88,10 @@
       },
       {
           "type": "compressor",
-          "threshold_db": -26.8,
-          "make_up_gain_db": 7.0,
-          "knee_width_db": 18.8,
-          "ratio": 15.3,
+          "threshold_db": -24.8,
+          "make_up_gain_db": 0.0,
+          "knee_width_db": 16.8,
+          "ratio": 14.3,
           "smoothing": 0.01
       }
     ]
