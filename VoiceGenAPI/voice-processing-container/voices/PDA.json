@@ -1,31 +1,139 @@
 {
    "voice_id":"pda",
    "voice_name":"IVONA 2 Amy OEM",
-   "volume":100,
+   "volume":85,
    "rate":0,
    "filter_settings":{
-      "pitch_shift": -0.96,
+      "pitch_shift":0,
       "filters":[
          {
             "type":"time_padding",
-            "ms_before": 100,
-            "ms_after": 600
+            "ms_before":100,
+            "ms_after":600
+         },
+         {
+            "type":"equalizer",
+            "bands":[
+               {
+                  "frequency_hz":90,
+                  "gain_db":0.43,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":150,
+                  "gain_db":0.3,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":250,
+                  "gain_db":-0.54,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":300,
+                  "gain_db":-0.88,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":450,
+                  "gain_db":-0.43,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":500,
+                  "gain_db":-0.05,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":750,
+                  "gain_db":0.58,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":1000,
+                  "gain_db":0.46,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":1350,
+                  "gain_db":0.23,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":1500,
+                  "gain_db":0.12,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":2000,
+                  "gain_db":0.2,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":3000,
+                  "gain_db":-0.44,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":4000,
+                  "gain_db":-2.0,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":5000,
+                  "gain_db":-3.06,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":6000,
+                  "gain_db":0.33,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":7000,
+                  "gain_db":0.8,
+                  "q":1.0
+               },
+               {
+                  "frequency_hz":8000,
+                  "gain_db":1.5,
+                  "q":1.0
+               }
+            ]
+         },
+         {
+            "type":"chorus",
+            "delay_ms":6,
+            "depth_ms":0,
+            "stereo_phase_deg":0,
+            "lfo_frequency_hz":5,
+            "cross_cutoff_hz":350,
+            "wet_mix":0.6,
+            "dry_mix":0.4
          },
          {
             "type":"flanger",
-            "depth":1.5,
-            "rate":0.15,
-            "delay":6.0,
-            "feedback":0.05,
-            "mix":0.2,
-            "waveform":"sine"
+            "delay":0.9,
+            "depth":0.33,
+            "rate":0.0,
+            "feedback":0.0,
+            "wet_gain":-3.83,
+            "dry_gain":2.0,
+            "cross_gain":-9.72,
+            "waveform":"sine",
+            "effect_amount":0.6
          },
          {
-            "type":"flangus",
-            "feedback":0.25,
-            "max_delay_ms":3.2,
-            "lfo_frequency":0.15,
-            "wet_mix": 0.45
+            "type":"flanger",
+            "delay":0.7,
+            "depth":0.2,
+            "rate":0.0,
+            "feedback":0.50,
+            "wet_gain":-3.73,
+            "dry_gain":2.0,
+            "cross_gain":-8.7,
+            "waveform":"sine",
+            "effect_amount":0.5
          }
       ]
    }

@@ -41,7 +41,19 @@ public class PitchShiftSource : ISampleSource
                 break;
 
             float frac = _position - index;
-            float sample = _buffer[index] * (1 - frac) + _buffer[index + 1] * frac;
+            
+            int i0 = (int)_position - 1;
+            int i1 = i0 + 1;
+            int i2 = i0 + 2;
+            int i3 = i0 + 3;
+
+            float sample = CubicInterpolate(
+                _buffer[Math.Max(0, i0)],
+                _buffer[Math.Max(0, i1)],
+                _buffer[Math.Min(_buffer.Length - 1, i2)],
+                _buffer[Math.Min(_buffer.Length - 1, i3)],
+                frac
+            );
 
             buffer[offset + i] = sample;
 
@@ -50,5 +62,16 @@ public class PitchShiftSource : ISampleSource
         }
 
         return samplesRead;
+    }
+    
+    private float CubicInterpolate(float a, float b, float c, float d, float t)
+    {
+        float t2 = t * t;
+        float a0 = d - c - a + b;
+        float a1 = a - b - a0;
+        float a2 = c - a;
+        float a3 = b;
+
+        return a0 * t * t2 + a1 * t2 + a2 * t + a3;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using CSCore;
+﻿using CSCore;
 using VoiceProcessor.Data.FilterSettings;
 
 namespace VoiceProcessor.Filters;
@@ -10,7 +9,11 @@ public class FlangerEffect : SampleSourceEffect
     private int _delayIndex;
     private readonly int _sampleRate;
     private float _phase;
-    private FlangerSettings _settings;
+    private readonly FlangerSettings _settings;
+    
+    private readonly float _wetGain;
+    private readonly float _dryGain;
+    private readonly float _crossGain;
     
     public FlangerEffect(ISampleSource source, FlangerSettings settings) : base(source)
     {
@@ -19,6 +22,9 @@ public class FlangerEffect : SampleSourceEffect
         _delayIndex = 0;
         _phase = 0;
         _settings = settings;
+        _wetGain = DbToGain(_settings.WetGain);;
+        _dryGain = DbToGain(_settings.DryGain);;
+        _crossGain = DbToGain(_settings.CrossGain);;
     }
 
     public override int Read(float[] buffer, int offset, int count)
@@ -28,23 +34,37 @@ public class FlangerEffect : SampleSourceEffect
         for (int i = 0; i < samplesRead; i++)
         {
             float lfo = GetLFO(_phase);
-            float currentDelayMs = _settings.Delay + (_settings.Depth * lfo);
+
+            // Interpolated params:
+            float delayMs = _settings.Delay * _settings.EffectAmount;
+            float depth = _settings.Depth * _settings.EffectAmount;
+
+            // Feedback and gains in linear scale, scaled by EffectAmount
+            float feedback = _settings.Feedback * _settings.EffectAmount;
+
+            float wetGainLin = _wetGain * _settings.EffectAmount;
+            float dryGainLin = 1.0f - _settings.EffectAmount + (_dryGain * _settings.EffectAmount);
+            float crossGainLin = _crossGain * _settings.EffectAmount;
+
+            float currentDelayMs = delayMs + (depth * lfo);
+            currentDelayMs = Math.Max(currentDelayMs, 0.1f); // avoid zero delay
+
             int delaySamples = (int)(_sampleRate * (currentDelayMs / 1000f));
             int readIndex = (_delayIndex - delaySamples + _delayBuffer.Length) % _delayBuffer.Length;
 
             float dry = buffer[offset + i];
             float delayed = _delayBuffer[readIndex];
 
-            // Apply feedback
-            float input = dry + delayed * _settings.Feedback;
+            // Feedback input includes cross feedback
+            float input = dry + delayed * feedback;
 
-            // Mix wet and dry
-            buffer[offset + i] = dry * (1f - _settings.Mix) + delayed * _settings.Mix;
+            // Mix output
+            buffer[offset + i] = dry * dryGainLin + delayed * wetGainLin;
 
-            // Store in delay buffer
-            _delayBuffer[_delayIndex] = input;
+            // Store feedback with cross gain applied
+            _delayBuffer[_delayIndex] = input * crossGainLin;
 
-            // Advance pointers
+            // Advance
             _delayIndex = (_delayIndex + 1) % _delayBuffer.Length;
             _phase += _settings.Rate / _sampleRate;
             if (_phase > 1f) _phase -= 1f;
@@ -62,4 +82,6 @@ public class FlangerEffect : SampleSourceEffect
             _ => 0f
         };
     }
+    
+    private static float DbToGain(float db) => (float)Math.Pow(10, db / 20.0);
 }
