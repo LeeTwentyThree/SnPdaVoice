@@ -79,36 +79,17 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     {
         var path = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
         synthesizer.SetOutputToWaveFile(path);
-        synthesizer.SpeakAsync(new Prompt(input.Message,
-            input.UseSsml ? SynthesisTextFormat.Ssml : SynthesisTextFormat.Text));
+        
+        var prompt = new Prompt(input.Message, input.UseSsml ? SynthesisTextFormat.Ssml : SynthesisTextFormat.Text);
+        bool success = await SpeakAsyncWithCompletion(synthesizer, prompt);
 
-        await Task.Delay(100);
-            
-        _timeOutStopWatch.Restart();
-        var timedOut = false;
-        while (true)
+        if (!success)
         {
-            if (_timeOutStopWatch.ElapsedMilliseconds > TimeOutInMilliseconds)
-            {
-                timedOut = true;
-                break;
-            }
-
-            if (synthesizer.State == SynthesizerState.Ready)
-            {
-                break;
-            }
-
-            await Task.Delay(CheckCompletionIntervalMs);
-        }
-
-        synthesizer.SetOutputToNull();
-
-        if (timedOut)
-        {
-            Console.WriteLine("Timed out while accessing speech synthesizer!");
+            Console.WriteLine("Synthesis timed out.");
             return new RawSpeechGeneration("ERROR", false);
         }
+        
+        synthesizer.SetOutputToNull();
 
         Console.WriteLine("Saving raw voice line to file at path: " + path);
         return new RawSpeechGeneration(path, true);
@@ -159,6 +140,31 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         }
 
         return new PitchShiftSource(buffer, source.WaveFormat, semitones);
+    }
+    
+    private async Task<bool> SpeakAsyncWithCompletion(SpeechSynthesizer synthesizer, Prompt prompt, int timeoutMs = 15000)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+
+        synthesizer.SpeakCompleted += Handler;
+        synthesizer.SpeakAsync(prompt);
+
+        var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(timeoutMs));
+        if (completedTask != tcs.Task)
+        {
+            // Timeout
+            synthesizer.SpeakCompleted -= Handler;
+            synthesizer.SpeakAsyncCancelAll(); // Cancel synthesis
+            return false;
+        }
+
+        return true;
+
+        void Handler(object? sender, SpeakCompletedEventArgs e)
+        {
+            synthesizer.SpeakCompleted -= Handler;
+            tcs.TrySetResult(true);
+        }
     }
 
     private static string GetUniqueFileName()
