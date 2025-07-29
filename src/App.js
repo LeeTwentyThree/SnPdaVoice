@@ -153,7 +153,7 @@ function GenerateMainSection() {
           <button onClick={closeModal}>Close</button>
         </div>
       </ReactModal>
-      {isPolling && <p>Waiting for file to be ready...</p>}
+      {isPolling && <p>Your voice line is being generated...</p>}
         {downloadUrl && (
           <div style={{
             marginLeft: '0px'
