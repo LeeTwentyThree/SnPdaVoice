@@ -4,16 +4,16 @@
   "volume": 40,
   "rate": 0,
   "filter_settings": {
-    "pitch_shift": -0.05,
+    "pitch_shift": -0.08,
     "filters": [
       {
         "type": "time_padding",
         "ms_before": 100,
-        "ms_after": 1000
+        "ms_after": 1500
       },
       {
         "type": "flanger",
-        "depth": 0.3,
+        "depth": 0.32,
         "lfo_frequency": 0.4,
         "base_delay_ms": 4,
         "spread": 0.3,
@@ -24,12 +24,12 @@
       },
       {
         "type": "flanger",
-        "depth": 0.4,
+        "depth": 0.24,
         "lfo_frequency": 0.2,
-        "base_delay_ms": 5,
+        "base_delay_ms": 7,
         "spread": 0.2,
-        "cross_mix": 0.3,
-        "dry_gain_db": 0.1,
+        "cross_mix": 0.2,
+        "dry_gain_db": 0.4,
         "wet_gain_db": -1.0,
         "feedback": 0.4
       },
