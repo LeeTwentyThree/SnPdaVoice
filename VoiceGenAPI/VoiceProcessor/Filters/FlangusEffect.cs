@@ -57,16 +57,22 @@ public class FlangusEffect : SampleSourceEffect
             float delayedL = _delayBufferLeft[readIdxL];
             float delayedR = _delayBufferRight[readIdxR];
 
-            float outL = dryL * _dryGain + delayedL * _wetGain;
-            float outR = dryR * _dryGain + delayedR * _wetGain;
+            // Original wet output
+            float wetOutL = dryL * _dryGain + delayedL * _wetGain;
+            float wetOutR = dryR * _dryGain + delayedR * _wetGain;
+
+            // Interpolate between dry and wet
+            float outL = dryL * (1f - _settings.EffectAmount) + wetOutL * _settings.EffectAmount;
+            float outR = dryR * (1f - _settings.EffectAmount) + wetOutR * _settings.EffectAmount;
 
             buffer[offset + i] = outL;
             if (isStereo)
                 buffer[offset + i + 1] = outR;
 
+
             // Apply cross-feedback
-            float feedbackL = dryL + delayedR * _settings.Cross * _settings.Feedback;
-            float feedbackR = dryR + delayedL * _settings.Cross * _settings.Feedback;
+            float feedbackL = dryL + delayedR * _crossGain * _settings.Feedback;
+            float feedbackR = dryR + delayedL * _crossGain * _settings.Feedback;
 
             _delayBufferLeft[_delayIndex] = feedbackL;
             _delayBufferRight[_delayIndex] = feedbackR;

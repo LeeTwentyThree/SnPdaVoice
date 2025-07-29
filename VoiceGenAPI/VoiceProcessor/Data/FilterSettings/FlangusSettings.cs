@@ -33,6 +33,9 @@ public class FlangusSettings : FilterSettingsBase
     [JsonPropertyName("waveform")] 
     public string Waveform { get; set; } = "sine"; // NOT IMPLEMENTED
 
+    [JsonPropertyName("effect_amount")] 
+    public float EffectAmount { get; set; } = 1f;
+
     public override ISampleSource Apply(ISampleSource input)
     {
         return new FlangusEffect(input, this);
