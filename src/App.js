@@ -123,6 +123,7 @@ function GenerateMainSection() {
 
   return (
     <section>
+      <h3>⚠️ Voice filters are still under construction and may be improved over time</h3>
       <p>Insert text for voice line generation:</p>
       <textarea
         value={textInput}
@@ -138,9 +139,10 @@ function GenerateMainSection() {
       <input
           type="checkbox"
           id="enable-ssml"
+          checked={useSsml}
           onChange={e => setUseSsml(e.target.checked)}
       />
-      <label htmlFor="enable-ssml">Enable SSML</label>
+      <label htmlFor="enable-ssml">Use SSML (Advanced)</label>
       <div class='button-spacing'></div>
       <button
         type="button"
