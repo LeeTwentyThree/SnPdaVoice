@@ -50,12 +50,12 @@
         "bands": [
           {
             "frequency_hz": 90,
-            "gain_db": 5,
+            "gain_db": 6,
             "q": 1
           },
           {
             "frequency_hz": 200,
-            "gain_db": 2,
+            "gain_db": 4,
             "q": 1
           },
           {
@@ -65,17 +65,17 @@
           },
           {
             "frequency_hz": 1000,
-            "gain_db": 3,
+            "gain_db": 2,
             "q": 1
           },
           {
             "frequency_hz": 1500,
-            "gain_db": 6,
+            "gain_db": 3,
             "q": 1
           },
           {
             "frequency_hz": 8000,
-            "gain_db": 10,
+            "gain_db": 5,
             "q": 1
           }
         ]
