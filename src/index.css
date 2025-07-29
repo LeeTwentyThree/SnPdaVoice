@@ -25,6 +25,15 @@ hr {
     padding: 0;
 }
 
+.topnav {
+    background-color:#499fc9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    color: rgb(0, 0, 0);
+}
+
 footer {
     background-color:#2d3b44;
     margin-top: auto;
@@ -77,3 +86,40 @@ button, textarea, #modal-panel {
 }
 
 .button-spacing { margin-top: 25px; }
+
+.nav-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-right: 1%;
+}
+
+.nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.top-header {
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.bio {
+  flex: 1 1 40%;
+  min-width: 300px;
+}
+
+.other-content {
+  flex: 1 1 55%;
+  min-width: 300px;
+}
