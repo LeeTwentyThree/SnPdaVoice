@@ -8,6 +8,7 @@ import json
 import uuid
 from .generation_request import GenerationRequest
 from .file_notification import FileNotification
+from lxml import etree
 
 HOST = 'host.docker.internal'
 PORT = 8765
@@ -20,6 +21,13 @@ app = FastAPI()
 message_queue = queue.Queue()
 
 job_statuses = {} # key: job_id, value: { "status": "queued"/"complete"/"error", "filename": str }
+
+def validate_ssml_message(message: str) -> bool:
+    try:
+        etree.fromstring(message)
+        return True
+    except etree.XMLSyntaxError:
+        return False
 
 def socket_worker():
     while True:
@@ -57,9 +65,19 @@ def socket_worker():
 @app.post("/api/generate")
 async def generate(input: GenerationRequest):
     message_length = len(input.input.message)
+
     if (message_length > CHARACTER_LIMIT):
         warning_message = str(message_length) + " inputted, " + str(CHARACTER_LIMIT) + " max"
-        return { "status": "too_many_characters", "job_id": "-1", "message": warning_message }
+        return { "status": "invalid_input", "job_id": "-1", "message": "Too many characters! " + warning_message }
+    
+    if input.input.use_ssml:
+        if not validate_ssml_message(input.input.message):
+            return {
+                "status": "invalid_input",
+                "job_id": "-1",
+                "message": "Invalid format for SSML"
+                }
+    
     unique_id = str(uuid.uuid4())
     print("Queuing request with ID " + unique_id)
     message_queue.put((input, unique_id))

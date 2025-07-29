@@ -35,6 +35,8 @@ function GenerateMainSection() {
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [isPolling, setIsPolling] = useState(false);
 
+  const [useSsml, setUseSsml] = useState(false);
+
   function openModal() {
     setIsOpen(true);
   }
@@ -54,15 +56,16 @@ function GenerateMainSection() {
     }
     try {
       setDownloadUrl(null);  // clear previous download
-      setIsPolling(true);
 
       const input = {
         message: textInput,
-        use_ssml: false,
+        use_ssml: useSsml,
         voice_id: "pda"
       };
 
-      const request = { input };
+      const request = { "input": input };
+
+      console.log(JSON.stringify(request));
 
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -73,11 +76,13 @@ function GenerateMainSection() {
       });
 
       const json = await response.json();
-      if (json.status === "too_many_characters") {
-        setMessage("Too many characters! " + json.message);
+      if (json.status === "invalid_input") {
+        setMessage(json.message);
         openModal();
         return;
       }
+
+      setIsPolling(true);
       const jobId = json.job_id;
 
       // Polling loop
@@ -130,6 +135,12 @@ function GenerateMainSection() {
           fontSize: '1rem',
         }}
       />
+      <input
+          type="checkbox"
+          id="enable-ssml"
+          onChange={e => setUseSsml(e.target.checked)}
+      />
+      <label htmlFor="enable-ssml">Enable SSML</label>
       <div class='button-spacing'></div>
       <button
         type="button"
