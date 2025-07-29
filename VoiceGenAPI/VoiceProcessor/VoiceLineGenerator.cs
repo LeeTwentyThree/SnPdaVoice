@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Net;
 using System.Runtime.Versioning;
 using System.Speech.AudioFormat;
 using System.Speech.Synthesis;
@@ -24,7 +23,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     
     private static readonly SpeechAudioFormatInfo Format = new(
         EncodingFormat.Pcm,
-        44100,
+        ExportSampleRate,
         16,
         1,
         88200,
@@ -32,6 +31,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         null
     );
 
+    private const int ExportSampleRate = 44100;
     
     private SpeechSynthesizer? GetSynthesizer()
     {
@@ -131,6 +131,12 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         using var reader = new WaveFileReader(inputFilePath);
         var source = reader.ToSampleSource().ToStereo();
 
+        // Change sample rate
+        if (source.WaveFormat.SampleRate != ExportSampleRate)
+        {
+            source = source.ChangeSampleRate(ExportSampleRate);
+        }
+        
         if (Math.Abs(filterSettings.PitchShift) > 0.00001f)
         {
             source = PitchShift(source, filterSettings.PitchShift);
@@ -140,10 +146,17 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         {
             source = filter.Apply(source);
         }
-        
-        using var final = source.ToWaveSource();
-        using var outputStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write);
-        final.WriteToWaveStream(outputStream);
+
+        using var final = source.ToWaveSource(16);
+
+        using var writer = new WaveWriter(outputFilePath, final.WaveFormat);
+        byte[] buffer = new byte[final.WaveFormat.BytesPerSecond];
+        int read;
+
+        while ((read = final.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            writer.Write(buffer, 0, read);
+        }
     }
 
     private ISampleSource PitchShift(ISampleSource source, float semitones)
