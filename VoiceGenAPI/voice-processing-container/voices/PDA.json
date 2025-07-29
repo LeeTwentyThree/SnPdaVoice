@@ -4,7 +4,7 @@
   "volume": 40,
   "rate": 0,
   "filter_settings": {
-    "pitch_shift": -0.08,
+    "pitch_shift": -0.12,
     "filters": [
       {
         "type": "time_padding",
@@ -13,30 +13,30 @@
       },
       {
         "type": "flanger",
-        "depth": 0.32,
-        "lfo_frequency": 0.4,
-        "base_delay_ms": 4,
-        "spread": 0.3,
-        "cross_mix": 0.2,
+        "depth": 1.0,
+        "lfo_frequency": 0.3,
+        "base_delay_ms": 3,
+        "spread": 0.2,
+        "cross_mix": 0.3,
         "dry_gain_db": -0.1,
         "wet_gain_db": -2.0,
-        "feedback": 0.1
+        "feedback": 0.4
       },
       {
         "type": "flanger",
-        "depth": 0.24,
+        "depth": 0.3,
         "lfo_frequency": 0.2,
-        "base_delay_ms": 7,
+        "base_delay_ms": 6.5,
         "spread": 0.2,
-        "cross_mix": 0.2,
+        "cross_mix": 0.3,
         "dry_gain_db": 0.4,
         "wet_gain_db": -1.0,
         "feedback": 0.4
       },
       {
          "type": "flangus",
-         "order": 2,
-         "depth": 0.3,
+         "order": 3,
+         "depth": 0.2,
          "speed": 0.7,
          "delay": 1.5,
          "spread": 0.46875,
@@ -65,17 +65,17 @@
           },
           {
             "frequency_hz": 1000,
-            "gain_db": 2.5,
+            "gain_db": 3,
             "q": 1
           },
           {
             "frequency_hz": 1500,
-            "gain_db": 4,
+            "gain_db": 8,
             "q": 1
           },
           {
             "frequency_hz": 8000,
-            "gain_db": 5,
+            "gain_db": 10,
             "q": 1
           }
         ]
@@ -85,6 +85,14 @@
           "delay_milliseconds": 0.5,
           "decay": 0.1,
           "mix": 0.1
+      },
+      {
+          "type": "compressor",
+          "threshold_db": -26.8,
+          "make_up_gain_db": 7.0,
+          "knee_width_db": 18.8,
+          "ratio": 15.3,
+          "smoothing": 0.01
       }
     ]
   }
