@@ -46,7 +46,7 @@ function SiteBio() {
     <div className="container">
       <section className="bio">
         <p>As someone who has been modding Subnautica for 6+ years, I have always wanted a free, accessible and quick way to
-          create the Subnautica PDA voice. AI-generated options generally do not sound accurate for replicating the filters. So, I created
+          generate the Subnautica PDA voice. AI-generated options generally do not sound accurate for replicating the filters. So, I created
           this page to allow anyone to create their own custom PDA lines.
         </p>
         <p>I first started figuring out the PDA voice for <a href="https://www.nexusmods.com/subnautica/mods/1820">The Red Plague</a>,
