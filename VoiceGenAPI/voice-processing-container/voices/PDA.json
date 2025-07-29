@@ -1,86 +1,91 @@
 {
-   "voice_id":"pda",
-   "voice_name":"IVONA 2 Amy OEM",
-   "volume":40,
-   "rate":0,
-   "filter_settings":{
-      "pitch_shift":0,
-      "filters":[
-         {
-            "type":"time_padding",
-            "ms_before":100,
-            "ms_after":600
-         },
+  "voice_id": "pda",
+  "voice_name": "IVONA 2 Amy OEM",
+  "volume": 40,
+  "rate": 0,
+  "filter_settings": {
+    "pitch_shift": -0.05,
+    "filters": [
+      {
+        "type": "time_padding",
+        "ms_before": 100,
+        "ms_after": 1000
+      },
       {
         "type": "flanger",
-        "delay": 2.37,
-        "depth": 2,
-        "rate": 0.5,
-        "feedback": 0.4,
-        "wet_gain": -1.5,
-        "dry_gain": 0.0,
-        "cross_gain": -3.7,
-        "waveform": "sine",
-        "effect_amount": 0.6
+        "depth": 0.3,
+        "lfo_frequency": 0.4,
+        "base_delay_ms": 4,
+        "spread": 0.3,
+        "cross_mix": 0.2,
+        "dry_gain_db": -0.1,
+        "wet_gain_db": -2.0,
+        "feedback": 0.1
       },
-         {
-            "type":"chorus",
-            "delay_ms":5,
-            "depth_ms":0,
-            "stereo_phase_deg":0,
-            "lfo_frequency_hz":6,
-            "cross_cutoff_hz":350,
-            "wet_mix":0.4,
-            "dry_mix":0.5
-         },
       {
-        "type": "flangus",
-        "depth": 0.60,
-        "speed": 0.67,
-        "delay": 0.06,
-        "spread": 0.4,
-        "cross": 0.275,
-        "dry": 0.2,
-        "wet": 1.15,
-        "feedback": 0.1,
-        "waveform": "sine",
-        "effect_amount": 0.7
+        "type": "flanger",
+        "depth": 0.4,
+        "lfo_frequency": 0.2,
+        "base_delay_ms": 5,
+        "spread": 0.2,
+        "cross_mix": 0.3,
+        "dry_gain_db": 0.1,
+        "wet_gain_db": -1.0,
+        "feedback": 0.4
       },
-         {
-            "type":"equalizer",
-            "bands":[
-               {
-                  "frequency_hz":90,
-                  "gain_db":3.0,
-                  "q":1.0
-               },
-               {
-                  "frequency_hz":200,
-                  "gain_db":1.0,
-                  "q":1.0
-               },
-               {
-                  "frequency_hz":500,
-                  "gain_db":-1.0,
-                  "q":1.0
-               },
-               {
-                  "frequency_hz":1000,
-                  "gain_db":2.5,
-                  "q":1.0
-               },
-               {
-                  "frequency_hz":1500,
-                  "gain_db":5.0,
-                  "q":1.0
-               },
-               {
-                  "frequency_hz":8000,
-                  "gain_db":7.0,
-                  "q":1.0
-               }
-           ]
-         }
-      ]
-   }
+      {
+         "type": "flangus",
+         "order": 2,
+         "depth": 0.3,
+         "speed": 0.7,
+         "delay": 1.5,
+         "spread": 0.46875,
+         "cross": 0.375,
+         "dry": 0.75,
+         "wet": 0.4,
+         "feedback": 0.1
+      },
+      {
+        "type": "equalizer",
+        "bands": [
+          {
+            "frequency_hz": 90,
+            "gain_db": 5,
+            "q": 1
+          },
+          {
+            "frequency_hz": 200,
+            "gain_db": 2,
+            "q": 1
+          },
+          {
+            "frequency_hz": 500,
+            "gain_db": 0,
+            "q": 1
+          },
+          {
+            "frequency_hz": 1000,
+            "gain_db": 2.5,
+            "q": 1
+          },
+          {
+            "frequency_hz": 1500,
+            "gain_db": 4,
+            "q": 1
+          },
+          {
+            "frequency_hz": 8000,
+            "gain_db": 5,
+            "q": 1
+          }
+        ]
+      },
+      {
+          "type": "reverb",
+          "delay_milliseconds": 0.5,
+          "decay": 0.1,
+          "mix": 0.1
+      }
+    ]
+  }
 }

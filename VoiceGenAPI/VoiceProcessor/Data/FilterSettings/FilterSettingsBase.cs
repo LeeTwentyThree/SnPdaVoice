@@ -9,6 +9,7 @@ namespace VoiceProcessor.Data.FilterSettings;
 [JsonDerivedType(typeof(FlangusSettings), "flangus")]
 [JsonDerivedType(typeof(EqualizerSettings), "equalizer")]
 [JsonDerivedType(typeof(ChorusSettings), "chorus")]
+[JsonDerivedType(typeof(ReverbSettings), "reverb")]
 public abstract class FilterSettingsBase
 {
     public abstract ISampleSource Apply(ISampleSource input);

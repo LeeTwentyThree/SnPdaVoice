@@ -6,32 +6,32 @@ namespace VoiceProcessor.Data.FilterSettings;
 
 public class FlangusSettings : FilterSettingsBase
 {
-    [JsonPropertyName("depth")] 
-    public float Depth { get; set; } = 0.45f;
+    [JsonPropertyName("order")]
+    public int Order { get; set; } = 4; // Number of flanger voices stacked
 
-    [JsonPropertyName("speed")] 
-    public float Speed { get; set; } = 0.68f;
+    [JsonPropertyName("depth")]
+    public float Depth { get; set; } = 0.45f; // Flange depth per flanger
 
-    [JsonPropertyName("delay")] 
-    public float Delay { get; set; } = 0.0625f;
+    [JsonPropertyName("speed")]
+    public float Speed { get; set; } = 0.5f; // Base LFO speed (Hz)
 
-    [JsonPropertyName("spread")] 
-    public float Spread { get; set; } = 0.47f;
+    [JsonPropertyName("delay")]
+    public float Delay { get; set; } = 0.01f; // Base delay in seconds
 
-    [JsonPropertyName("cross")] 
-    public float Cross { get; set; } = 0.375f;
+    [JsonPropertyName("spread")]
+    public float Spread { get; set; } = 0.5f; // Spread 0..1 affects variation across voices
 
-    [JsonPropertyName("dry")] 
-    public float Dry { get; set; } = 0.83f;
+    [JsonPropertyName("cross")]
+    public float StereoCross { get; set; } = 0f; // -1.0 (inverted L <-> R) to 1.0 (L <-> R)
 
-    [JsonPropertyName("wet")] 
-    public float Wet { get; set; } = 0.86f;
+    [JsonPropertyName("dry")]
+    public float Dry { get; set; } = 1f; // -1.0 to 1.0 (dry signal polarity and mix)
 
-    [JsonPropertyName("feedback")] 
-    public float Feedback { get; set; } = 0.1f;
-
-    [JsonPropertyName("waveform")] 
-    public string Waveform { get; set; } = "sine"; // NOT IMPLEMENTED
+    [JsonPropertyName("wet")]
+    public float Wet { get; set; } = 1f; // -1.0 to 1.0 (wet signal polarity and mix)
+    
+    [JsonPropertyName("feedback")]
+    public float Feedback { get; set; } = 1f;
 
     [JsonPropertyName("effect_amount")] 
     public float EffectAmount { get; set; } = 1f;
