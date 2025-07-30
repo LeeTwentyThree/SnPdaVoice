@@ -73,7 +73,7 @@ async def generate(input: GenerationRequest):
                 "message": "Invalid format for SSML"
                 }
     
-    unique_id = get_job_id
+    unique_id = get_job_id(input)
     print("Queuing request with ID " + unique_id)
     message_queue.put((input, unique_id))
     job_statuses[unique_id] = { "status": "queued", "filename": None }
