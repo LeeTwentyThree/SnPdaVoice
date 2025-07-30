@@ -131,7 +131,7 @@ function GenerateMainSection() {
       // Polling loop
       const pollInterval = 3000;
       let attempts = 0;
-      const maxAttempts = 20;
+      const maxAttempts = 100; // 20 = 1 minute
 
       const pollStatus = async () => {
         const statusResponse = await fetch(`/api/status/${jobId}`);
