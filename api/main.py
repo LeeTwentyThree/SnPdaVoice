@@ -1,11 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, HTTPException
-import socket
-import threading
-import queue
-import time
-import json
-import uuid
+import uuid, re, json, time, queue, threading, socket
 from .generation_request import GenerationRequest
 from .file_notification import FileNotification
 from lxml import etree
@@ -78,12 +73,20 @@ async def generate(input: GenerationRequest):
                 "message": "Invalid format for SSML"
                 }
     
-    unique_id = str(uuid.uuid4())
+    unique_id = get_job_id
     print("Queuing request with ID " + unique_id)
     message_queue.put((input, unique_id))
     job_statuses[unique_id] = { "status": "queued", "filename": None }
     return { "status": "queued", "job_id": unique_id, "message": "Queued!" }
 
+def get_job_id(input: GenerationRequest):
+    base = request.input.message[:16]
+
+    base = re.sub(r'[^a-zA-Z0-9_-]', '_', base).strip('_')
+
+    unique_suffix = uuid.uuid4().hex[:16]
+
+    return f"{base}_{unique_suffix}"
 
 @app.post("/api/notify-file-ready")
 async def notify_file_ready(data: FileNotification):
