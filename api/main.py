@@ -79,7 +79,7 @@ async def generate(input: GenerationRequest):
     job_statuses[unique_id] = { "status": "queued", "filename": None }
     return { "status": "queued", "job_id": unique_id, "message": "Queued!" }
 
-def get_job_id(input: GenerationRequest):
+def get_job_id(request: GenerationRequest):
     base = request.input.message[:16]
 
     base = re.sub(r'[^a-zA-Z0-9_-]', '_', base).strip('_')
