@@ -12,11 +12,6 @@ namespace VoiceProcessor;
 [SupportedOSPlatform("windows")]
 public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
 {
-    private readonly Stopwatch _timeOutStopWatch = new();
-
-    private const int TimeOutInMilliseconds = 15000;
-    private const int CheckCompletionIntervalMs = 200;
-
     private static GenerationResult GetErrorResult(string id) =>
         new("http://invalid.invalid/", id, false);
 
