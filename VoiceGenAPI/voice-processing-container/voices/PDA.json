@@ -4,7 +4,7 @@
   "volume":100,
   "rate": 0,
   "filter_settings": {
-    "pitch_shift": -0.10,
+    "pitch_shift": -0.23,
     "filters": [
       {
         "type": "time_padding",
