@@ -53,7 +53,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
                 return GetErrorResult(id);
             }
 
-            var outputPath = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
+            var outputPath = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName(id, "wav"));
 
             AddFiltersAndGenerateNewFile(rawSpeech.Path, outputPath, generatorSettings.FilterSettings);
 
@@ -73,7 +73,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     private async Task<RawSpeechGeneration> GenerateUnfilteredTextToSpeech(SpeechSynthesizer synthesizer,
         GenerationInput input)
     {
-        var path = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName() + ".wav");
+        var path = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueString() + ".wav");
         synthesizer.SetOutputToWaveFile(path);
 
         var prompt = new Prompt(input.UseSsml ? FixSsml(input.Message) : input.Message,
@@ -165,9 +165,19 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         }
     }
 
-    private static string GetUniqueFileName()
+    private static string GetUniqueString()
     {
         return Guid.NewGuid().ToString();
+    }
+    
+    private static string GetUniqueFileName(string jobId, string extension)
+    {
+        var normalFileName = jobId + "." + extension;
+        if (File.Exists(Path.Combine(WorkingFolderUtils.GetTempFolder(), normalFileName)))
+        {
+            return Guid.NewGuid().ToString();
+        }
+        return normalFileName;
     }
 
     private static string FixSsml(string original)
