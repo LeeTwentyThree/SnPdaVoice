@@ -175,7 +175,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
         var normalFileName = jobId + "." + extension;
         if (File.Exists(Path.Combine(WorkingFolderUtils.GetTempFolder(), normalFileName)))
         {
-            return Guid.NewGuid().ToString();
+            return Guid.NewGuid() + "." + extension;
         }
         return normalFileName;
     }
