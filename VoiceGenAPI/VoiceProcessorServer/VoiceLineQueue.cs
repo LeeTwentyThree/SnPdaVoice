@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
 using System.Runtime.Versioning;
 using VoiceProcessor;
 using VoiceProcessor.Data;
@@ -6,16 +6,43 @@ using VoiceProcessor.Data;
 namespace VoiceProcessorServer;
 
 [SupportedOSPlatform("windows")]
-public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
+public class VoiceLineQueue(int index, Dictionary<string, VoiceLineGenerator> voices)
 {
     private readonly CompletedFileNotifier _notifier = new(new HttpClient(), 8005, "api/notify-file-ready");
     private readonly Queue<VoiceLineRequest> _requests = new();
 
-    private static readonly Telemetry Telemetry = new Telemetry();
+    private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(50);
+
+    public int Count => _requests.Count;
+
+    private bool _stopRequested;
+
+    private readonly Stopwatch _generationTimeStopwatch = new();
 
     public void EnqueueVoiceLineRequest(VoiceLineRequest request)
     {
         _requests.Enqueue(request);
+    }
+
+    public void StartProcessingEntries()
+    {
+        _stopRequested = false;
+        Task.Run(ProcessQueueLoop);
+    }
+
+    public void StopProcessingEntries()
+    {
+        _stopRequested = true;
+    }
+    
+    private async Task ProcessQueueLoop()
+    {
+        Console.WriteLine("Starting queue process loop");
+        while (!_stopRequested)
+        {
+            await ProcessNextQueueElement();
+            await Task.Delay(QueueProcessingDelay);
+        }
     }
     
     internal async Task ProcessNextQueueElement()
@@ -28,7 +55,8 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
         var request = _requests.Dequeue();
         
         Console.WriteLine("Handling request: " + request);
-        Telemetry.LogProcessedRequest(request);
+        ServerProgram.Telemetry.LogProcessedRequest(request);
+        _generationTimeStopwatch.Restart();
 
         if (string.IsNullOrEmpty(request.Input.VoiceId))
         {
@@ -63,7 +91,8 @@ public class VoiceLineQueue(Dictionary<string, VoiceLineGenerator> voices)
     private async Task ContactRequester(VoiceLineRequest request, GenerationResult? result, string responseMessage, bool success)
     {
         Console.WriteLine($"[Contacting requester] request: '{request}', message: '{responseMessage}', success: '{success}'");
-        Telemetry.LogRequestCompletionStatus(request, success);
+        var inputLength = request.Input.Message?.Length ?? 0;
+        ServerProgram.Telemetry.LogRequestCompletionStatus(request, inputLength, _generationTimeStopwatch.Elapsed.TotalSeconds, success);
 
         if (success && result != null)
         {

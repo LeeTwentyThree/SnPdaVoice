@@ -10,20 +10,20 @@ namespace VoiceProcessorServer;
 [SupportedOSPlatform("windows")]
 public static class ServerProgram
 {
-    private static VoiceLineQueue MainQueue { get; set; }
+    private static readonly List<VoiceLineQueue> Queues = [];
     
     public const int Port = 8765;
+    public const int ConcurrentQueues = 10;
     private static TcpListener? _listener;
     private static StreamReader? _reader;
     private static StreamWriter? _writer;
     
     public static bool IsReady { get; private set; }
 
-    private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(200);
     private static TimeSpan FileLifetime { get; } = TimeSpan.FromDays(1);
     private static TimeSpan FileDeletionAttemptsInterval { get; } = TimeSpan.FromHours(1);
     
-    private static readonly Telemetry Telemetry = new();
+    internal static readonly Telemetry Telemetry = new();
     
     public static async Task Main(string[] args)
     {
@@ -37,11 +37,16 @@ public static class ServerProgram
         {
             Console.WriteLine("No voices found! Press enter to exit...");
             Console.ReadLine();
+            return;
         }
 
-
-        MainQueue = new VoiceLineQueue(voices);
-        Task.Run(ProcessQueue);
+        for (int i = 0; i < ConcurrentQueues; i++)
+        {
+            var queue = new VoiceLineQueue(i, voices);
+            Queues.Add(queue);
+            queue.StartProcessingEntries();
+        }
+        
         Task.Run(ClearUnusedFiles);
         
         Console.WriteLine($"Voice systems initialized. {voices.Count} voices found.");
@@ -97,16 +102,6 @@ public static class ServerProgram
         }
     }
 
-    private static async Task ProcessQueue()
-    {
-        Console.WriteLine("Starting queue process loop");
-        while (true)
-        {
-            await MainQueue.ProcessNextQueueElement();
-            await Task.Delay(QueueProcessingDelay);
-        }
-    }
-
     private static async Task ClearUnusedFiles()
     {
         while (true)
@@ -118,6 +113,22 @@ public static class ServerProgram
 
     private static VoiceLineQueue GetBestQueueForInput(VoiceLineRequest request)
     {
-        return MainQueue;
+        var bestQueue = Queues[0];
+        var maxAmount = int.MaxValue;
+        foreach (var item in Queues)
+        {
+            if (item.Count == 0)
+            {
+                return item;
+            }
+
+            if (item.Count < maxAmount)
+            {
+                bestQueue = item;
+                maxAmount = item.Count;
+            }
+        }
+
+        return bestQueue;
     }
 }

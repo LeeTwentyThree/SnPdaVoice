@@ -38,10 +38,10 @@ public class Telemetry
         LogGenericData("Requests", "Processing request with ID " + request.JobId);
     }
     
-    public void LogRequestCompletionStatus(VoiceLineRequest request, bool success)
+    public void LogRequestCompletionStatus(VoiceLineRequest request, int characters, double duration, bool success)
     {
         var status = success ? "success" : "failed";
-        LogGenericData("Requests", $"Request completed with status '{status}' (id: {request.JobId})");
+        LogCompletionData($"Request completed with status '{status}' (id: {request.JobId})", characters, duration, status);
     }
     
     public void LogServerStart()
@@ -76,6 +76,39 @@ public class Telemetry
 
         using var insertCmd = new SQLiteCommand(insertSql, con);
         insertCmd.Parameters.AddWithValue("@ts", DateTime.UtcNow.ToString("o"));
+        insertCmd.Parameters.AddWithValue("@msg", value);
+        insertCmd.ExecuteNonQuery();
+    }
+    
+    private void LogCompletionData(string value, int characters, double duration, string status)
+    {
+        using var con = new SQLiteConnection(_connectionString);
+        con.Open();
+        
+        // Ensure it exists
+        var createSql = @"
+        CREATE TABLE IF NOT EXISTS GeneratedFiles (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Timestamp TEXT NOT NULL,
+            Status TEXT NOT NULL,
+            Characters INTEGER NOT NULL,
+            Duration REAL NOT NULL,
+            Message TEXT NOT NULL
+        );";
+
+        using var ensureCmd = new SQLiteCommand(createSql, con);
+        ensureCmd.ExecuteNonQuery();
+
+        // Insert data
+        var insertSql = @"
+        INSERT INTO GeneratedFiles (Timestamp, Status, Characters, Duration, Message)
+        VALUES (@ts, @status, @characters, @duration, @msg);";
+
+        using var insertCmd = new SQLiteCommand(insertSql, con);
+        insertCmd.Parameters.AddWithValue("@ts", DateTime.UtcNow.ToString("o"));
+        insertCmd.Parameters.AddWithValue("@status", status);
+        insertCmd.Parameters.AddWithValue("@characters", characters);
+        insertCmd.Parameters.AddWithValue("@duration", duration);
         insertCmd.Parameters.AddWithValue("@msg", value);
         insertCmd.ExecuteNonQuery();
     }
