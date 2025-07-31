@@ -11,26 +11,31 @@ namespace VoiceProcessorServer;
 public static class ServerProgram
 {
     private static readonly List<VoiceLineQueue> Queues = [];
-    
+    private static readonly List<VoiceLineQueue> LongVoiceLineQueues = [];
+
     public const int Port = 8765;
-    public const int ConcurrentQueues = 10;
+
+    private const int NormalQueueCount = 8;
+    private const int LongVoiceLineQueueCount = 4;
+    private const int LongVoiceLineMinCharacterCutOff = 400;
+
     private static TcpListener? _listener;
     private static StreamReader? _reader;
     private static StreamWriter? _writer;
-    
+
     public static bool IsReady { get; private set; }
 
     private static TimeSpan FileLifetime { get; } = TimeSpan.FromDays(1);
     private static TimeSpan FileDeletionAttemptsInterval { get; } = TimeSpan.FromHours(1);
-    
+
     internal static readonly Telemetry Telemetry = new();
-    
+
     public static async Task Main(string[] args)
     {
         _listener = new TcpListener(IPAddress.Loopback, Port);
         _listener.Start();
         Console.WriteLine($"Listening on port {Port}...");
-        
+
         var voices = VoiceLoadingUtils.LoadAllVoices();
 
         if (voices.Count == 0)
@@ -40,22 +45,29 @@ public static class ServerProgram
             return;
         }
 
-        for (int i = 0; i < ConcurrentQueues; i++)
+        for (int i = 0; i < NormalQueueCount; i++)
         {
-            var queue = new VoiceLineQueue(i, voices);
+            var queue = new VoiceLineQueue("NormalQueue" + i, voices);
             Queues.Add(queue);
             queue.StartProcessingEntries();
         }
-        
+
+        for (int i = 0; i < LongVoiceLineQueueCount; i++)
+        {
+            var queue = new VoiceLineQueue("LongLineQueue" + i, voices);
+            LongVoiceLineQueues.Add(queue);
+            queue.StartProcessingEntries();
+        }
+
         Task.Run(ClearUnusedFiles);
-        
+
         Console.WriteLine($"Voice systems initialized. {voices.Count} voices found.");
         Console.WriteLine("Starting server...");
 
         IsReady = true;
-        
+
         Telemetry.LogServerStart();
-        
+
         while (true)
         {
             Console.WriteLine("Waiting for a new client...");
@@ -113,16 +125,18 @@ public static class ServerProgram
 
     private static VoiceLineQueue GetBestQueueForInput(VoiceLineRequest request)
     {
-        var bestQueue = Queues[0];
+        var list = GetQueueListForInput(request);
+
+        var bestQueue = list[0];
         var maxAmount = int.MaxValue;
-        foreach (var item in Queues)
+        foreach (var item in list)
         {
-            if (item.Count == 0)
+            if (item.CountIncludingCurrentTask == 0)
             {
                 return item;
             }
 
-            if (item.Count < maxAmount)
+            if (item.CountIncludingCurrentTask < maxAmount)
             {
                 bestQueue = item;
                 maxAmount = item.Count;
@@ -130,5 +144,16 @@ public static class ServerProgram
         }
 
         return bestQueue;
+    }
+
+    private static List<VoiceLineQueue> GetQueueListForInput(VoiceLineRequest request)
+    {
+        if (!string.IsNullOrEmpty(request.Input.Message) &&
+            request.Input.Message.Length > LongVoiceLineMinCharacterCutOff)
+        {
+            return LongVoiceLineQueues;
+        }
+
+        return Queues;
     }
 }

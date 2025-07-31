@@ -6,16 +6,18 @@ using VoiceProcessor.Data;
 namespace VoiceProcessorServer;
 
 [SupportedOSPlatform("windows")]
-public class VoiceLineQueue(int index, Dictionary<string, VoiceLineGenerator> voices)
+public class VoiceLineQueue(string queueName, Dictionary<string, VoiceLineGenerator> voices)
 {
     private readonly CompletedFileNotifier _notifier = new(new HttpClient(), 8005, "api/notify-file-ready");
     private readonly Queue<VoiceLineRequest> _requests = new();
 
-    private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(50);
+    private static TimeSpan QueueProcessingDelay { get; } = TimeSpan.FromMilliseconds(100);
 
     public int Count => _requests.Count;
+    public int CountIncludingCurrentTask => _requests.Count + (_isProcessingEntry ? 1 : 0);
 
     private bool _stopRequested;
+    private bool _isProcessingEntry;
 
     private readonly Stopwatch _generationTimeStopwatch = new();
 
@@ -37,7 +39,7 @@ public class VoiceLineQueue(int index, Dictionary<string, VoiceLineGenerator> vo
     
     private async Task ProcessQueueLoop()
     {
-        Console.WriteLine("Starting queue process loop");
+        Console.WriteLine("Starting queue process loop for queue: " + queueName);
         while (!_stopRequested)
         {
             await ProcessNextQueueElement();
@@ -54,6 +56,7 @@ public class VoiceLineQueue(int index, Dictionary<string, VoiceLineGenerator> vo
 
         var request = _requests.Dequeue();
         
+        _isProcessingEntry = true;
         Console.WriteLine("Handling request: " + request);
         ServerProgram.Telemetry.LogProcessedRequest(request);
         _generationTimeStopwatch.Restart();
@@ -86,6 +89,8 @@ public class VoiceLineQueue(int index, Dictionary<string, VoiceLineGenerator> vo
             Console.WriteLine(e);
             await ContactRequester(request, null, "An internal exception occurred", false);
         }
+
+        _isProcessingEntry = false;
     }
 
     private async Task ContactRequester(VoiceLineRequest request, GenerationResult? result, string responseMessage, bool success)
