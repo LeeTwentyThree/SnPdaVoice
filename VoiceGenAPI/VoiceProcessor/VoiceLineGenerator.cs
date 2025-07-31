@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using System.Speech.Synthesis;
 using CSCore;
 using CSCore.Codecs.WAV;
@@ -55,7 +54,8 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
 
             var outputPath = Path.Combine(WorkingFolderUtils.GetTempFolder(), GetUniqueFileName(id, "wav"));
 
-            AddFiltersAndGenerateNewFile(rawSpeech.Path, outputPath, generatorSettings.FilterSettings);
+            await Task.Run(() =>
+                AddFiltersAndGenerateNewFile(rawSpeech.Path, outputPath, generatorSettings.FilterSettings));
 
             File.Delete(rawSpeech.Path);
 
