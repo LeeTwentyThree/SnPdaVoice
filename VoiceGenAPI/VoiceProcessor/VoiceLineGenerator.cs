@@ -14,7 +14,7 @@ public class VoiceLineGenerator(VoiceGeneratorSettings generatorSettings)
     private static GenerationResult GetErrorResult(string id) =>
         new("http://invalid.invalid/", id, false);
 
-    private const int ExportSampleRate = 44100;
+    private const int ExportSampleRate = 22000;
 
     private SpeechSynthesizer? GetSynthesizer()
     {

@@ -19,7 +19,7 @@ public class FlangerEffect : SampleSourceEffect
     {
         _settings = settings;
         _sampleRate = WaveFormat.SampleRate;
-        int bufferLength = _sampleRate; // 1 second max delay buffer
+        int bufferLength = _sampleRate / 2; // 0.5 second max delay buffer
         _delayBufferLeft = new float[bufferLength];
         _delayBufferRight = new float[bufferLength];
         _delayIndex = 0;
