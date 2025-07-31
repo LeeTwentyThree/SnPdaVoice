@@ -25,28 +25,15 @@ def validate_ssml_message(message: str) -> bool:
         return False
 
 def socket_worker():
+    s = None
     while True:
-        input, job_id = message_queue.get()
-        job_statuses[job_id] = { "status": "queued", "filename": None }
-
-        while True:
+        # Ensure connection
+        while s is None:
             try:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    print(f"Connecting to {HOST}:{PORT}...")
-                    s.connect((HOST, PORT))
-                    print("Connected.")
-
-                    # Include job_id in the payload
-                    message_dict = input.dict()
-                    message_dict["job_id"] = job_id
-                    jsonMessage = json.dumps(message_dict)
-
-                    print(f"Sending: {jsonMessage}")
-                    s.sendall((jsonMessage + "\n").encode())
-                    data = s.recv(1024)
-                    print(f"Received from server: {data.decode()}")
-                    break
-
+                print(f"Connecting to {HOST}:{PORT}...")
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((HOST, PORT))
+                print("Connected.")
             except (ConnectionRefusedError, socket.timeout) as e:
                 print(f"{e}. Retrying in {RETRY_DELAY}s...")
                 time.sleep(RETRY_DELAY)
@@ -54,7 +41,35 @@ def socket_worker():
                 print(f"Unexpected error: {e}")
                 time.sleep(RETRY_DELAY)
 
-        message_queue.task_done()
+        # Get a job from the queue
+        input, job_id = message_queue.get()
+        job_statuses[job_id] = {"status": "queued", "filename": None}
+
+        try:
+            # Prepare and send message
+            message_dict = input.dict()
+            message_dict["job_id"] = job_id
+            jsonMessage = json.dumps(message_dict) + "\n"
+
+            print(f"Sending: {jsonMessage.strip()}")
+            s.sendall(jsonMessage.encode())
+
+            # Receive response
+            data = s.recv(1024)
+            print(f"Received from server: {data.decode()}")
+
+        except (ConnectionResetError, BrokenPipeError, socket.timeout) as e:
+            print(f"Connection lost: {e}. Will reconnect.")
+            s.close()
+            s = None  # Force reconnect next loop
+            time.sleep(RETRY_DELAY)
+            message_queue.put((input, job_id))  # Requeue the job
+        except Exception as e:
+            print(f"Unexpected error while sending job: {e}")
+            time.sleep(RETRY_DELAY)
+            message_queue.put((input, job_id))  # Requeue the job
+        else:
+            message_queue.task_done()
 
 
 @app.post("/api/generate")
