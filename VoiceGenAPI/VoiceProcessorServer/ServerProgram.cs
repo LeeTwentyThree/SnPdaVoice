@@ -108,10 +108,15 @@ public static class ServerProgram
                 continue;
             }
 
-            GetBestQueueForInput(request).EnqueueVoiceLineRequest(request);
-            Telemetry.LogReceivedRequest(request);
+            QueueRequest(request);
             await writer.WriteLineAsync("Enqueued request successfully!");
         }
+    }
+
+    public static void QueueRequest(VoiceLineRequest request)
+    {
+        GetBestQueueForInput(request).EnqueueVoiceLineRequest(request);
+        Telemetry.LogReceivedRequest(request);
     }
 
     private static async Task ClearUnusedFiles()
