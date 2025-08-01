@@ -15,7 +15,7 @@ public class VoiceLineQueue(string queueName, Dictionary<string, VoiceLineGenera
 
     public int Count => _requests.Count;
     public int CountIncludingCurrentTask => _requests.Count + (_isProcessingEntry ? 1 : 0);
-
+    
     private bool _stopRequested;
     private bool _isProcessingEntry;
 

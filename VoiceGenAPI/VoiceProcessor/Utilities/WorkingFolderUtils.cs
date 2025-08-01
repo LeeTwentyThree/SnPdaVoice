@@ -59,6 +59,6 @@ public static class WorkingFolderUtils
 
     public static string GetTelemetryFilePath()
     {
-        return Path.Combine(GetWorkingFolderRoot(), "telemetry.db");
+        return Path.Combine(GetWorkingFolderRoot(), TelemetryFileName);
     }
 }
