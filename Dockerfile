@@ -35,5 +35,4 @@ EXPOSE 5000
 
 # Start your backend (e.g., uvicorn for FastAPI or Flask app)
 # Update this command based on your backend framework and structure
-CMD ["python", "-m", "piper.http_server", "-m", "pda"]
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "3000", "&", ";", "python", "-m", "piper.http_server", "-m", "pda"]
