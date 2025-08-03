@@ -47,7 +47,7 @@ function SiteBio() {
       <section className="bio">
         <p>As someone who has been modding Subnautica for 6+ years, I have always wanted a free, accessible and quick way to
           generate the Subnautica PDA voice. AI-generated options generally do not sound accurate for replicating the filters. So, I created
-          this page to allow anyone to create their own custom PDA lines.
+          this page to allow anyone to create their own custom PDA lines.same-origin
         </p>
         <p>I first started figuring out the PDA voice for <a href="https://www.nexusmods.com/subnautica/mods/1820">The Red Plague</a>,
         which made establishing new, natural-feeling content so much easier. The technology I use for the Red Plague PDA might be slightly
@@ -66,7 +66,7 @@ function SiteBio() {
 function SiteHeader() {
   return (
     <div>
-      <h1>PDA Voice Generator</h1>
+      <h1>PDA Voice Generator</h1>same-origin
       <hr />
     </div>
   );
@@ -109,7 +109,7 @@ function GenerateMainSection() {
     
       const response = await fetch(`${regex.exec(domain)[1]}:${port}`, {
         method: "POST",
-        mode: "same-origin",
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
