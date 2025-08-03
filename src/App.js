@@ -105,7 +105,7 @@ function GenerateMainSection() {
       console.log(JSON.stringify(request));
       let domain = window.location.origin;
       let port = 5000;
-      const response = await fetch("${domain}:${port}", {
+      const response = await fetch(`${domain}:${port}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
