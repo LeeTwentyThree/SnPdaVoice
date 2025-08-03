@@ -19,6 +19,10 @@ WORKDIR /app
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Get model
+RUN wget https://huggingface.co/Aquaaa123/piper-tts-pda-subnautica/resolve/main/pda.onnx
+RUN wget https://huggingface.co/Aquaaa123/piper-tts-pda-subnautica/resolve/main/pda.onnx.json
+
 # Copy backend code
 COPY ./api ./api
 
@@ -27,7 +31,9 @@ COPY --from=frontend-builder /app/build ./build
 
 # EXPOSE port for backend (adjust if needed)
 EXPOSE 3000
+EXPOSE 5000
 
 # Start your backend (e.g., uvicorn for FastAPI or Flask app)
 # Update this command based on your backend framework and structure
+CMD ["python", "-m", "piper.http_server", "-m", "pda"]
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "3000"]
