@@ -107,7 +107,7 @@ function GenerateMainSection() {
       let port = 5000;
       const regex = /(.*)(:\d*)\/?(.*)/gm;
     
-      const response = await fetch(`${domain.match(regex)}:${port}`, {
+      const response = await fetch(`${regex.exec(domain)[1]}:${port}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
