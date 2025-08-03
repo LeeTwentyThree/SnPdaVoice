@@ -98,7 +98,6 @@ function GenerateMainSection() {
       openModal();
       return;
     }
-    try {
       setDownloadUrl(null);  // clear previous download
 
 
@@ -120,7 +119,6 @@ function GenerateMainSection() {
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
   })();
-  };
 
   return (
     <section>
