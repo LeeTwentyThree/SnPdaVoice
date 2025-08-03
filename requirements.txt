@@ -1,4 +1,4 @@
 fastapi
 uvicorn[standard]
 lxml
-piper-tts
+piper-tts[http]
