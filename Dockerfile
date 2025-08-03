@@ -1,5 +1,5 @@
 # Stage 1: Build the frontend using Node
-FROM node:22-alpine AS frontend-builder
+FROM node:22-bookworm AS frontend-builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY ./public ./public
 RUN npm install && npm run build
 
 # Stage 2: Run Python backend & serve frontend
-FROM python:3.11-alpine
+FROM python:3.11-bookworm
 
 WORKDIR /app
 
