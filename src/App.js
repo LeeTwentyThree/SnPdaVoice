@@ -101,17 +101,12 @@ function GenerateMainSection() {
     try {
       setDownloadUrl(null);  // clear previous download
 
-      const input = {
-        message: textInput,
-        use_ssml: useSsml,
-        voice_id: "pda"
-      };
 
-      const request = { "input": input };
-
+      const request = { "text": textInput };
       console.log(JSON.stringify(request));
-
-      const response = await fetch("/api/generate", {
+      let domain = window.location.origin;
+      let port = 5000;
+      const response = await fetch("${domain}:${port}", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -119,49 +114,11 @@ function GenerateMainSection() {
         body: JSON.stringify(request)
       });
 
-      const json = await response.json();
-      if (json.status === "invalid_input") {
-        setMessage(json.message);
-        openModal();
-        return;
-      }
-
-      setIsPolling(true);
-      const jobId = json.job_id;
-
-      // Polling loop
-      const pollInterval = 3000;
-      let attempts = 0;
-      const maxAttempts = 100; // 20 = 1 minute
-
-      const pollStatus = async () => {
-        const statusResponse = await fetch(`/api/status/${jobId}`);
-        const statusJson = await statusResponse.json();
-
-        if (statusJson.status === "ready") {
-          setDownloadUrl(statusJson.url);
-          setIsPolling(false);
-        } else if (statusJson.status === "error") {
-          setMessage("An internal server error occurred.");
-          setIsPolling(false);
-          openModal();
-        }
-        else if (attempts < maxAttempts) {
-          attempts++;
-          setTimeout(pollStatus, pollInterval);
-        } else {
-          setMessage("File not ready after waiting.");
-          setIsPolling(false);
-          openModal();
-        }
-      };
-
-      pollStatus();
-
-    } catch (error) {
-      setMessage("An unknown error occurred.");
-      openModal();
-    }
+      const bytes = await response.arrayBuffer();
+      const byteArray = new Uint8Array(bytes);
+      const blob = new Blob([byteArray],{type: 'audio/x-wav'});
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
   })();
   };
 
