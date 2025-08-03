@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
 lxml
-git+https://github.com/jonahnm/piper1-gpl.git@f6c6c06
+git+https://github.com/jonahnm/piper1-gpl.git@d906e7d
 flask
 flask-cors
