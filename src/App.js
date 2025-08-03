@@ -57,6 +57,7 @@ function SiteBio() {
           We don't know the original settings used, so an approximation is needed, and it can still be improved
           over time (it's open source!).
         </p>
+        <p>Thanks so much to aqua082910 on Discord for using alot of their time and energy (literally!) to train a piper-tts model for the PDA voice!</p>
       </section>
     </div>
   )
