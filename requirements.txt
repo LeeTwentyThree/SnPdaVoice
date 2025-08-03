@@ -1,4 +1,4 @@
 fastapi
 uvicorn[standard]
 lxml
-git+https://github.com/jonahnm/piper1-gpl.git[http]
+git+https://github.com/jonahnm/piper1-gpl.git
