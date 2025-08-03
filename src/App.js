@@ -109,7 +109,7 @@ function GenerateMainSection() {
     
       const response = await fetch(`${regex.exec(domain)[1]}:${port}`, {
         method: "POST",
-        mode: "no-cors",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*"
