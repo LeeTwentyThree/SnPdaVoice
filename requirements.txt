@@ -1,4 +1,6 @@
 fastapi
 uvicorn[standard]
 lxml
-piper-tts[http] @ git+https://github.com/jonahnm/piper1-gpl.git
+git+https://github.com/jonahnm/piper1-gpl.git
+flask
+flask-cors
