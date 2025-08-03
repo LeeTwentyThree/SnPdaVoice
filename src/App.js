@@ -119,7 +119,7 @@ function GenerateMainSection() {
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
   })();
-
+  }
   return (
     <section>
       <h3>⚠️ Voice filters are still under construction and may be improved over time</h3>
