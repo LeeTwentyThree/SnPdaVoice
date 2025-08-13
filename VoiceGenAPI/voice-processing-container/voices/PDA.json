@@ -53,9 +53,20 @@
       },
       {
         "type": "flanger",
-        "depth": 0.3,
+        "depth": 2.5,
         "lfo_frequency": 0.35,
-        "base_delay_ms": 6,
+        "base_delay_ms": 7,
+        "spread": 0.3,
+        "cross_mix": 0.3,
+        "dry_gain_db": 2.1,
+        "wet_gain_db": -3.2,
+        "feedback": 0.24
+      },
+      {
+        "type": "flanger",
+        "depth": 1.7,
+        "lfo_frequency": 0.2,
+        "base_delay_ms": 7,
         "spread": 0.3,
         "cross_mix": 0.3,
         "dry_gain_db": 2.1,
