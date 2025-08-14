@@ -1,7 +1,7 @@
 {
   "voice_id": "pda",
   "voice_name": "IVONA 2 Amy OEM",
-  "volume":100,
+  "volume":70,
   "rate": 0,
   "filter_settings": {
     "pitch_shift": -0.23,
