@@ -47,7 +47,7 @@ function SiteBio() {
       <section className="bio">
         <p>As someone who has been modding Subnautica for 6+ years, I have always wanted a free, accessible and quick way to
           generate the Subnautica PDA voice. AI-generated options generally do not sound accurate for replicating the filters. So, I created
-          this page to allow anyone to create their own custom PDA lines.
+          this page to allow anyone to create their own custom PDA lines.same-origin
         </p>
         <p>I first started figuring out the PDA voice for <a href="https://www.nexusmods.com/subnautica/mods/1820">The Red Plague</a>,
         which made establishing new, natural-feeling content so much easier. The technology I use for the Red Plague PDA might be slightly
@@ -57,6 +57,7 @@ function SiteBio() {
           We don't know the original settings used, so an approximation is needed, and it can still be improved
           over time (it's open source!).
         </p>
+        <p>Thanks so much to aqua082910 on Discord for using alot of their time and energy (literally!) to train a piper-tts model for the PDA voice!</p>
       </section>
     </div>
   )
@@ -65,7 +66,7 @@ function SiteBio() {
 function SiteHeader() {
   return (
     <div>
-      <h1>PDA Voice Generator</h1>
+      <h1>PDA Voice Generator</h1>same-origin
       <hr />
     </div>
   );
@@ -97,73 +98,32 @@ function GenerateMainSection() {
       openModal();
       return;
     }
-    try {
       setDownloadUrl(null);  // clear previous download
 
-      const input = {
-        message: textInput,
-        use_ssml: useSsml,
-        voice_id: "pda"
-      };
 
-      const request = { "input": input };
-
+      const request = { "text": textInput };
       console.log(JSON.stringify(request));
-
-      const response = await fetch("/api/generate", {
+      let domain = window.location.origin;
+      let port = 5000;
+      const regex = /(.*)(:\d*)\/?(.*)/gm;
+    
+      const response = await fetch(`${regex.exec(domain)[1]}:${port}`, {
         method: "POST",
+        mode: "cors",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
         },
         body: JSON.stringify(request)
       });
 
-      const json = await response.json();
-      if (json.status === "invalid_input") {
-        setMessage(json.message);
-        openModal();
-        return;
-      }
-
-      setIsPolling(true);
-      const jobId = json.job_id;
-
-      // Polling loop
-      const pollInterval = 3000;
-      let attempts = 0;
-      const maxAttempts = 100; // 20 = 1 minute
-
-      const pollStatus = async () => {
-        const statusResponse = await fetch(`/api/status/${jobId}`);
-        const statusJson = await statusResponse.json();
-
-        if (statusJson.status === "ready") {
-          setDownloadUrl(statusJson.url);
-          setIsPolling(false);
-        } else if (statusJson.status === "error") {
-          setMessage("An internal server error occurred.");
-          setIsPolling(false);
-          openModal();
-        }
-        else if (attempts < maxAttempts) {
-          attempts++;
-          setTimeout(pollStatus, pollInterval);
-        } else {
-          setMessage("File not ready after waiting.");
-          setIsPolling(false);
-          openModal();
-        }
-      };
-
-      pollStatus();
-
-    } catch (error) {
-      setMessage("An unknown error occurred.");
-      openModal();
-    }
+      const bytes = await response.arrayBuffer();
+      const byteArray = new Uint8Array(bytes);
+      const blob = new Blob([byteArray],{type: 'audio/x-wav'});
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
   })();
-  };
-
+  }
   return (
     <section>
       <h3>⚠️ Voice filters are still under construction and may be improved over time</h3>
